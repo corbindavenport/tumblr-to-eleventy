@@ -83,11 +83,10 @@ while ($ContinueSearching -eq $true) {
             $Html | Out-File -FilePath $TargetPath -Force
             # Write metadata to JSON file
             $PostMetadata = [PSCustomObject]@{
-                permalink   = ($Post.post_url -replace $Post.blog.url, "")
-                date        = $Post.date
+                permalink   = ($Post.post_url -replace $Post.blog.url, "") + "/index.html"
+                date        = [DateTimeOffset]::FromUnixTimeSeconds($Post.timestamp).UtcDateTime.ToString("yyyy-MM-ddTHH:mm:ssZ")
                 tumblr_id   = $Post.id
                 tumblr_url  = $Post.post_url
-                tumblr_uuid = $Post.uuid
             }
             if ($Post.title) {
                 $PostMetadata | Add-Member -MemberType NoteProperty -Name 'title' -Value $Post.title

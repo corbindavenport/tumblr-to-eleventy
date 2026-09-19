@@ -24,4 +24,4 @@ Finally, run the script like this:
 
 Your OAuth Consumer Key from your application's API page goes in the `key` parameter, and your blog's domain or other [valid blog identifier](https://www.tumblr.com/docs/en/api/v2#blog-identifiers) in the `blog` parameter. The `tag` parameter is optional, but you can use it to apply a certain tag to all exported posts. For example, if you're already using a "post" tag for all your blog posts, you should add that to the command.
 
-The posts will be saved in an `exports` directory. You can move the contents to any location in your Eleventy site's structure.
+The posts will be saved in an `exports` directory. You can move the contents to any location in your Eleventy site's structure. The JSON responses from Tumblr's API is also saved in a `response` directory for debugging.
