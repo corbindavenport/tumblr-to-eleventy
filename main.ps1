@@ -62,21 +62,11 @@ while ($ContinueSearching -eq $true) {
         foreach ($Post in $ThisPage.response.posts) {
             # Create output directory
             $null = New-Item -ItemType Directory -Force -Path "export/$($Post.slug)"
-            # Get title of the post
-            if ($Post.title) {
-                $PostTitle = $Post.title
-            } else {
-                $PostTitle = $Post.summary
-            }
-            # Get tags for post
-            if ($tag) {
-                $TagsString = "$tag, $($Post.tags -join ", ")"
-            } else {
-                $TagsString = $Post.tags -join ", "
-            }
-            # Clean up HTML with Pandoc
+            # Set output files
             $OriginalPath = Join-Path -Path $pwd -ChildPath "import/posts/html/$($Post.id).html"
             $TargetPath = Join-Path -Path $pwd -ChildPath "export/$($Post.slug)/$($Post.slug).html"
+            $TargetJson = Join-Path -Path $pwd -ChildPath "export/$($Post.slug)/$($Post.slug).json"
+            # Clean up HTML with Pandoc
             $Pandoc = & pandoc $OriginalPath -f html -t html --ascii=true --wrap=none
             $Html = $Pandoc | Out-String
             # Replace media paths
@@ -89,20 +79,31 @@ while ($ContinueSearching -eq $true) {
             $Html = $Html -replace '<h1 id="section"></h1>', ''
             # Remove footers
             $Html = $Html -replace '<div id="footer"[\s\S]*?<\/div>', ''
-            # Write file
-            $PostContents = @"
----
-title: $PostTitle
-permalink: "$($Post.post_url -replace $Post.blog.url, "")"
-date: $($Post.date)
-tags: $TagsString
-id: $($Post.id)
----
-
-$Html
-"@
-            $PostContents | Out-File -FilePath $TargetPath -Force
-            Write-Host "Finished converting: $($PostTitle) ($($Post.date))"
+            # Write HTML file
+            $Html | Out-File -FilePath $TargetPath -Force
+            # Write metadata to JSON file
+            $PostMetadata = [PSCustomObject]@{
+                permalink   = ($Post.post_url -replace $Post.blog.url, "")
+                date        = $Post.date
+                tumblr_id   = $Post.id
+                tumblr_url  = $Post.post_url
+                tumblr_uuid = $Post.uuid
+            }
+            if ($Post.title) {
+                $PostMetadata | Add-Member -MemberType NoteProperty -Name 'title' -Value $Post.title
+            }
+            else {
+                $PostMetadata | Add-Member -MemberType NoteProperty -Name 'title' -Value $Post.summary
+            }
+            if ($tag) {
+                $PostMetadata | Add-Member -MemberType NoteProperty -Name 'tags' -Value (@($tag) + $Post.tags)
+            }
+            else {
+                $PostMetadata | Add-Member -MemberType NoteProperty -Name 'tags' -Value $Post.tags
+            }
+            $PostMetadata | ConvertTo-Json -Depth 1 | Set-Content -Path $TargetJson -Encoding UTF8
+            # Finished
+            Write-Host "Finished converting: $($PostMetadata.title) ($($Post.date))"
         }
     }
     else {
