@@ -19,7 +19,7 @@ Next, register an [API application with Tumblr](https://corbin.io). You can put 
 Finally, run the script like this:
 
 ```shell
-./main.ps1 -key YourKeyGoesHere -blog myblog.tumblr.com -tag "post"
+pwsh ./main.ps1 -key YourKeyGoesHere -blog myblog.tumblr.com -tag "post"
 ```
 
 Your OAuth Consumer Key from your application's API page goes in the `key` parameter, and your blog's domain or other [valid blog identifier](https://www.tumblr.com/docs/en/api/v2#blog-identifiers) in the `blog` parameter.

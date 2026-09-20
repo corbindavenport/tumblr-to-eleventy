@@ -71,6 +71,9 @@ while ($ContinueSearching -eq $true) {
             $Html = $Pandoc | Out-String
             # Replace media paths
             $Html = $Html -replace '../../media/', '../tumblr_media/'
+            # Remove summary and/or title being used as the first H1
+            $Html = $Html -replace "<h1\s+id=""(?<id>[^""]+)""[^>]*>\s*$([regex]::Escape($Post.title))\s*</h1>", ""
+            $Html = $Html -replace "<h1\s+id=""(?<id>[^""]+)""[^>]*>\s*$([regex]::Escape($Post.summary))\s*</h1>", ""
             # Remove "More" divider
             $Html = $Html -replace '<p>\[\[MORE\]\]</p>', ''
             # Remove "ALT" button under images
@@ -80,7 +83,7 @@ while ($ContinueSearching -eq $true) {
             # Remove footers
             $Html = $Html -replace '<div id="footer"[\s\S]*?<\/div>', ''
             # Write HTML file
-            $Html | Out-File -FilePath $TargetPath -Force
+            $Html.Trim() | Out-File -FilePath $TargetPath -NoNewline -Force
             # Write metadata to JSON file
             $PostMetadata = [PSCustomObject]@{
                 permalink   = ($Post.post_url -replace $Post.blog.url, "") + "/index.html"
