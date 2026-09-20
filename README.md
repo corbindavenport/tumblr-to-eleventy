@@ -73,11 +73,7 @@ Original Tumblr post: [How I rewrote Nexus Tools with Dart](https://web.archive.
   "tags": [
     "post",
     "dart",
-    "google dart",
-    "programming",
-    "dev",
-    "development",
-    "software development"
+    "google dart"
   ]
 }
 ```
@@ -86,8 +82,8 @@ Original Tumblr post: [How I rewrote Nexus Tools with Dart](https://web.archive.
 
 ```
 export/how-i-rewrote-nexus-tools-with-dart/
-export/how-i-rewrote-nexus-tools-with-dart/how-i-rewrote-nexus-tools-with-dart.html
-export/how-i-rewrote-nexus-tools-with-dart/how-i-rewrote-nexus-tools-with-dart.json
+export/how-i-rewrote-nexus-tools-with-dart/index.html
+export/how-i-rewrote-nexus-tools-with-dart/index.json
 export/tumblr_media/664051705424592896_0.png
 [continued...]
 ```

@@ -64,8 +64,8 @@ while ($ContinueSearching -eq $true) {
             $null = New-Item -ItemType Directory -Force -Path "export/$($Post.slug)"
             # Set output files
             $OriginalPath = Join-Path -Path $pwd -ChildPath "import/posts/html/$($Post.id).html"
-            $TargetPath = Join-Path -Path $pwd -ChildPath "export/$($Post.slug)/$($Post.slug).html"
-            $TargetJson = Join-Path -Path $pwd -ChildPath "export/$($Post.slug)/$($Post.slug).json"
+            $TargetPath = Join-Path -Path $pwd -ChildPath "export/$($Post.slug)/index.html"
+            $TargetJson = Join-Path -Path $pwd -ChildPath "export/$($Post.slug)/index.json"
             # Clean up HTML with Pandoc
             $Pandoc = & pandoc $OriginalPath -f html -t html --ascii=true --wrap=none
             $Html = $Pandoc | Out-String
