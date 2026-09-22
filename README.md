@@ -65,17 +65,19 @@ Original Tumblr post: [How I rewrote Nexus Tools with Dart](https://web.archive.
 
 ```json
 {
+  "title": "How I rewrote Nexus Tools with Dart",
   "permalink": "post/664051705424592896/how-i-rewrote-nexus-tools-with-dart/index.html",
   "date": "2021-10-03T19:24:16Z",
-  "tumblr_id": 664051705424592896,
-  "tumblr_url": "https://blog.corbin.io/post/664051705424592896/how-i-rewrote-nexus-tools-with-dart",
-  "title": "How I rewrote Nexus Tools with Dart",
   "tags": [
     "post",
     "dart",
     "google dart"
-  ]
+  ],
+  "tumblr_url": "https://blog.corbin.io/post/664051705424592896/how-i-rewrote-nexus-tools-with-dart",
+  "tumblr_short_url": "https://tmblr.co/ZEbilYatBu7_Kq00",
+  "tumblr_blog_name": "corbindavenport"
 }
+
 ```
 
 ### File structure

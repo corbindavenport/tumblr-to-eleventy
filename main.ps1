@@ -85,23 +85,20 @@ while ($ContinueSearching -eq $true) {
             # Write HTML file
             $Html.Trim() | Out-File -FilePath $TargetPath -NoNewline -Force
             # Write metadata to JSON file
-            $PostMetadata = [PSCustomObject]@{
-                permalink   = ($Post.post_url -replace $Post.blog.url, "") + "/index.html"
-                date        = [DateTimeOffset]::FromUnixTimeSeconds($Post.timestamp).UtcDateTime.ToString("yyyy-MM-ddTHH:mm:ssZ")
-                tumblr_id   = $Post.id
-                tumblr_url  = $Post.post_url
-            }
-            if ($Post.title) {
-                $PostMetadata | Add-Member -MemberType NoteProperty -Name 'title' -Value $Post.title
-            }
-            else {
-                $PostMetadata | Add-Member -MemberType NoteProperty -Name 'title' -Value $Post.summary
-            }
             if ($tag) {
-                $PostMetadata | Add-Member -MemberType NoteProperty -Name 'tags' -Value (@($tag) + $Post.tags)
+                $PostTags = (@($tag) + $Post.tags)
             }
             else {
-                $PostMetadata | Add-Member -MemberType NoteProperty -Name 'tags' -Value $Post.tags
+                $PostTags = $Post.tags
+            }
+            $PostMetadata = [PSCustomObject]@{
+                title            = $Post.title ? $Post.title : $Post.summary
+                permalink        = ($Post.post_url -replace $Post.blog.url, "") + "/index.html"
+                date             = [DateTimeOffset]::FromUnixTimeSeconds($Post.timestamp).UtcDateTime.ToString("yyyy-MM-ddTHH:mm:ssZ")
+                tags             = $PostTags
+                tumblr_url       = $Post.post_url
+                tumblr_short_url = $Post.short_url
+                tumblr_blog_name = $Post.blog_name
             }
             $PostMetadata | ConvertTo-Json -Depth 1 | Set-Content -Path $TargetJson -Encoding UTF8
             # Finished
