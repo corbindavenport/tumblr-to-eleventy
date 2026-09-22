@@ -14,7 +14,7 @@ brew install powershell pandoc
 
 You also need an [export of your Tumblr blog](https://help.tumblr.com/knowledge-base/export-your-blog/). When it's ready, download the ZIP file and place it in the directory where you are running the script.
 
-Next, register an [API application with Tumblr](https://corbin.io). You can put anything in the title, callback URL, and other required fields.
+Next, register an [API application with Tumblr](https://www.tumblr.com/oauth/apps). You can put anything in the title, callback URL, and other required fields.
 
 Finally, run the script like this:
 
