@@ -3,7 +3,8 @@
 param (
     [Parameter(Mandatory = $true)][string]$key,
     [Parameter(Mandatory = $true)][string]$blog,
-    [Parameter(Mandatory = $false)][string]$tag
+    [Parameter(Mandatory = $false)][string]$tag,
+    [Parameter(Mandatory = $false)][string]$parsemedia = "false"
 )
 
 [int]$RetrievedPosts = 0
@@ -50,9 +51,11 @@ if (-not(Test-Path "./import/posts/")) {
 # Create folder for JSON responses
 $null = New-Item -ItemType Directory -Force -Path "responses"
 
-# Copy media directory to export folder
-Copy-Item -Path "./import/media" -Destination "./export/tumblr_media" -Recurse -Force
-Write-Host "Copied media to export directory"
+# Copy media directory to export folder, if parsemedia option is not enabled
+if ([System.Convert]::ToBoolean($parsemedia) -eq $false) {
+    Copy-Item -Path "./import/media" -Destination "./export/tumblr_media" -Recurse -Force
+    Write-Host "Copied media to export directory"
+}
 
 # Run search and iterate through all pages
 while ($ContinueSearching -eq $true) {
@@ -62,24 +65,40 @@ while ($ContinueSearching -eq $true) {
         foreach ($Post in $ThisPage.response.posts) {
             # Create output directory
             $null = New-Item -ItemType Directory -Force -Path "export/$($Post.slug)"
-            # Set output files
-            $OriginalPath = Join-Path -Path $pwd -ChildPath "import/posts/html/$($Post.id).html"
-            $TargetPath = Join-Path -Path $pwd -ChildPath "export/$($Post.slug)/index.html"
-            $TargetJson = Join-Path -Path $pwd -ChildPath "export/$($Post.slug)/index.json"
-            # Clean up HTML with Pandoc
-            $Pandoc = & pandoc $OriginalPath -f html -t html --ascii=true --wrap=none
-            $Html = $Pandoc | Out-String
-            # Replace media paths
-            $Html = $Html -replace '../../media/', '../tumblr_media/'
+            # Set input and output files
+            $InputMedia = Join-Path -Path $pwd -ChildPath "import/media/"
+            $InputHtml = Join-Path -Path $pwd -ChildPath "import/posts/html/$($Post.id).html"
+            $OutputPath = Join-Path -Path $pwd -ChildPath "export/$($Post.slug)/"
+            $OutputHtml = Join-Path -Path $OutputPath -ChildPath "index.html"
+            $OutputJson = Join-Path -Path $OutputPath -ChildPath "index.json"
+            $Html = Get-Content -Path $InputHtml
+            # Remove everything except the contents of the <body> tag
+            $Html = [regex]::Match($Html, '(?is)<body[^>]*>(.*?)</body>').Groups[1].Value
+            # Move media files
+            if ([System.Convert]::ToBoolean($parsemedia) -eq $true) {
+                # Detect embedded media in HTML files, move them to the post's folder, and update the path in the HTML
+                $Pattern = '(?:\.\./\.\./media/)(?<FileName>[^\s"]+)'
+                foreach ($Match in [regex]::Matches($Html, $Pattern)) {
+                    # Copy the media to the post's folder
+                    $FileLocation = Join-Path -Path $InputMedia -ChildPath $Match.Groups['FileName'].Value
+                    $FileDestination = Join-Path -Path $OutputPath -ChildPath $Match.Groups['FileName'].Value
+                    Copy-Item -Path $FileLocation -Destination $FileDestination -Recurse -Force
+                    # Replace the path in the HTML file
+                    $Html = $Html -replace $Match.Value, $Match.Groups['FileName'].Value
+                }
+            } else {
+                # Keep all media in original folder for best compatibility
+                $Html = $Html -replace '../../media/', '../tumblr_media/'
+            }
             # Remove summary and/or title being used as the first H1
-            $Html = $Html -replace "<h1\s+id=""(?<id>[^""]+)""[^>]*>\s*$([regex]::Escape($Post.title))\s*</h1>", ""
-            $Html = $Html -replace "<h1\s+id=""(?<id>[^""]+)""[^>]*>\s*$([regex]::Escape($Post.summary))\s*</h1>", ""
+            $Html = $Html -replace "<h1>$($Post.title)</h1>", ""
+            $Html = $Html -replace "<h1>$($Post.summary)</h1>", ""
             # Remove href.li link redirects
             # Example: "https://href.li/?https://en.wikipedia.org/wiki/IMac_G3" becomes "https://en.wikipedia.org/wiki/IMac_G3"
             # Tumblr stopped adding this to posts in November 2023: https://www.tumblr.com/changes/734888841528410112
             $Html = $Html -replace 'https://href.li/\?', ''
             # Remove "More" divider
-            $Html = $Html -replace '<p>\[\[MORE\]\]</p>', ''
+            $Html = $Html -replace '\[\[MORE\]\]', ''
             # Remove "ALT" button under images
             $Html = $Html -replace '<span class="tmblr-alt-text-helper">ALT</span>', ""
             # Remove empty headers
@@ -87,7 +106,7 @@ while ($ContinueSearching -eq $true) {
             # Remove footers
             $Html = $Html -replace '<div id="footer"[\s\S]*?<\/div>', ''
             # Write HTML file
-            $Html.Trim() | Out-File -FilePath $TargetPath -NoNewline -Force
+            $Html.Trim() | Out-File -FilePath $OutputHtml -NoNewline -Force
             # Write metadata to JSON file
             $PostMetadata = [PSCustomObject]@{
                 title            = $Post.title ? $Post.title : $Post.summary
@@ -99,7 +118,7 @@ while ($ContinueSearching -eq $true) {
                 tumblr_short_url = $Post.short_url
                 tumblr_blog_name = $Post.blog_name
             }
-            $PostMetadata | ConvertTo-Json -Depth 1 | Set-Content -Path $TargetJson -Encoding UTF8
+            $PostMetadata | ConvertTo-Json -Depth 1 | Set-Content -Path $OutputJson -Encoding UTF8
             # Finished
             Write-Host "Finished converting: $($PostMetadata.title) ($($Post.date))"
         }
