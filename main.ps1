@@ -74,6 +74,10 @@ while ($ContinueSearching -eq $true) {
             # Remove summary and/or title being used as the first H1
             $Html = $Html -replace "<h1\s+id=""(?<id>[^""]+)""[^>]*>\s*$([regex]::Escape($Post.title))\s*</h1>", ""
             $Html = $Html -replace "<h1\s+id=""(?<id>[^""]+)""[^>]*>\s*$([regex]::Escape($Post.summary))\s*</h1>", ""
+            # Remove href.li link redirects
+            # Example: "https://href.li/?https://en.wikipedia.org/wiki/IMac_G3" becomes "https://en.wikipedia.org/wiki/IMac_G3"
+            # Tumblr stopped adding this to posts in November 2023: https://www.tumblr.com/changes/734888841528410112
+            $Html = $Html -replace 'https://href.li/\?', ''
             # Remove "More" divider
             $Html = $Html -replace '<p>\[\[MORE\]\]</p>', ''
             # Remove "ALT" button under images
@@ -85,17 +89,12 @@ while ($ContinueSearching -eq $true) {
             # Write HTML file
             $Html.Trim() | Out-File -FilePath $TargetPath -NoNewline -Force
             # Write metadata to JSON file
-            if ($tag) {
-                $PostTags = (@($tag) + $Post.tags)
-            }
-            else {
-                $PostTags = $Post.tags
-            }
             $PostMetadata = [PSCustomObject]@{
                 title            = $Post.title ? $Post.title : $Post.summary
-                permalink        = ($Post.post_url -replace $Post.blog.url, "") + "/index.html"
+                permalink        = ($Post.post_url -replace $Post.blog.url, "/") + "/index.html"
                 date             = [DateTimeOffset]::FromUnixTimeSeconds($Post.timestamp).UtcDateTime.ToString("yyyy-MM-ddTHH:mm:ssZ")
-                tags             = $PostTags
+                tags             = $tag ? (@($tag) + $Post.tags) : $Post.tags
+                tumblr_id        = $Post.id
                 tumblr_url       = $Post.post_url
                 tumblr_short_url = $Post.short_url
                 tumblr_blog_name = $Post.blog_name
