@@ -91,8 +91,8 @@ while ($ContinueSearching -eq $true) {
                 $Html = $Html -replace '../../media/', '../tumblr_media/'
             }
             # Remove summary and/or title being used as the first H1
-            $Html = $Html -replace "<h1>$($Post.title)</h1>", ""
-            $Html = $Html -replace "<h1>$($Post.summary)</h1>", ""
+            $Html = $Html -replace "(?s)<h1[^>]*>\s*$($Post.title)\s*</h1>", ""
+            $Html = $Html -replace "(?s)<h1[^>]*>\s*$($Post.summary)\s*</h1>", ""
             # Remove href.li link redirects
             # Example: "https://href.li/?https://en.wikipedia.org/wiki/IMac_G3" becomes "https://en.wikipedia.org/wiki/IMac_G3"
             # Tumblr stopped adding this to posts in November 2023: https://www.tumblr.com/changes/734888841528410112
@@ -101,10 +101,8 @@ while ($ContinueSearching -eq $true) {
             $Html = $Html -replace '\[\[MORE\]\]', ''
             # Remove "ALT" button under images
             $Html = $Html -replace '<span class="tmblr-alt-text-helper">ALT</span>', ""
-            # Remove empty headers
-            $Html = $Html -replace '<h1 id="section"></h1>', ''
             # Remove footers
-            $Html = $Html -replace '<div id="footer"[\s\S]*?<\/div>', ''
+            $Html = $Html -replace '(?s)<div id="footer">.*?</div>', ''
             # Write HTML file
             $Html.Trim() | Out-File -FilePath $OutputHtml -NoNewline -Force
             # Write metadata to JSON file
