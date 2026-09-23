@@ -1,12 +1,18 @@
 # Tumblr to Eleventy Migration Tool
 
-A PowerShell script for migrating Tumblr blog posts to an [Eleventy website](https://www.11ty.dev/), while retaining their original permalinks, titles, tags, and other metadata. The output format for posts is HTML, not Markdown, using Tumblr's own HTML export.
+A PowerShell script for migrating Tumblr blog posts to an [Eleventy website](https://www.11ty.dev/), while retaining their original permalinks, titles, tags, and other metadata. The output format for posts is HTML, not Markdown, using Tumblr's own HTML export cleaned up with [HTML Tidy](https://www.html-tidy.org/).
 
-**Note:** This was only tested with my personal blog's ~80 posts, running on macOS.
+**Note:** This was only tested with my personal blog and its 80 posts, running on macOS.
 
 ## How to use the script
 
-You need [PowerShell 7 or later](https://learn.microsoft.com/en-us/powershell/scripting/install/install-powershell). You also need an [export of your Tumblr blog](https://help.tumblr.com/knowledge-base/export-your-blog/). When Tumblr has completed the export, download the ZIP file and place it in the directory where you are running the script.
+You need [PowerShell 7 or later](https://learn.microsoft.com/en-us/powershell/scripting/install/install-powershell) and [HTML Tidy](https://www.html-tidy.org/). On a Mac, you can install them with [Homebrew](https://formulae.brew.sh/) like this:
+
+```shell
+brew install powershell tidy-html5
+```
+
+You also need an [export of your Tumblr blog](https://help.tumblr.com/knowledge-base/export-your-blog/). When Tumblr has completed the export, download the ZIP file and place it in the directory where you are running the script.
 
 Next, register an [API application with Tumblr](https://www.tumblr.com/oauth/apps). You can put anything in the title, callback URL, and other required fields.
 
@@ -40,16 +46,19 @@ Original Tumblr post: [How I rewrote Nexus Tools with Dart](https://web.archive.
 
 ### HTML for post
 
-Note: The actual output HTML is on one line.
-
 ```html
-<h1>How I rewrote Nexus Tools with Dart</h1>
-<p>Last month, I updated a project of mine called <a href="https://github.com/corbindavenport/nexus-tools">Nexus Tools</a>, which is an installer for Google&rsquo;s Android SDK Platform Tools. It&rsquo;s one of my most popular software projects, with around 1.1-1.3k users per month, and version 5.0 is a complete rewrite. The switch seemed to go fine (no bug reports yet!), so I wanted to write a blog post about the development process, in the hopes that it might help others experimenting with bash scripts or Dart programming.</p>
-<h1>The old bash script</h1>
-<p>Before v5.0, Nexus Tools was written as a <a href="https://en.wikipedia.org/wiki/Bash_(Unix_shell)">bash script</a>, which is a series of commands that runs in Bash Shell (or a Bash-compatible environment). I only supported Mac and Linux at first, but over the years I also added compatibility for Chrome OS, Bash for Windows 10, and Macs with Apple Silicon chips. The main process is the same across all platforms: Nexus Tools creates a folder in the home directory, downloads and unzips the SDK Platform Tools package from Google&rsquo;s server, and adds it to the <a href="https://en.wikipedia.org/wiki/PATH_(variable)">system path</a>. Nothing too complicated.</p>
-<div class="npf_row">
-    <figure class="tmblr-full" data-orig-height="720" data-orig-width="1280"><img src="664051705424592896_0.png" data-orig-height="720" data-orig-width="1280" srcset="664051705424592896_0.png 75w, 664051705424592896_0.png 100w, 664051705424592896_0.png 250w, 664051705424592896_0.png 400w, 664051705424592896_0.png 500w, 664051705424592896_0.png 540w, 664051705424592896_0.png 640w, 664051705424592896_0.png 1280w" sizes="(max-width: 1280px) 100vw, 1280px" /></figure>
-</div>
+<h1>
+  How I rewrote Nexus Tools with Dart
+</h1>
+<p>
+  Last month, I updated a project of mine called <a href="https://github.com/corbindavenport/nexus-tools">Nexus Tools</a>, which is an installer for Google’s Android SDK Platform Tools. It’s one of my most popular software projects, with around 1.1-1.3k users per month, and version 5.0 is a complete rewrite. The switch seemed to go fine (no bug reports yet!), so I wanted to write a blog post about the development process, in the hopes that it might help others experimenting with bash scripts or Dart programming.
+</p>
+<h1>
+  The old bash script
+</h1>
+<p>
+  Before v5.0, Nexus Tools was written as a <a href="https://en.wikipedia.org/wiki/Bash_(Unix_shell)">bash script</a>, which is a series of commands that runs in Bash Shell (or a Bash-compatible environment). I only supported Mac and Linux at first, but over the years I also added compatibility for Chrome OS, Bash for Windows 10, and Macs with Apple Silicon chips. The main process is the same across all platforms: Nexus Tools creates a folder in the home directory, downloads and unzips the SDK Platform Tools package from Google’s server, and adds it to the <a href="https://en.wikipedia.org/wiki/PATH_(variable)">system path</a>. Nothing too complicated.
+</p>
 // Continued...
 ```
 

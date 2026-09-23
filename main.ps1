@@ -72,8 +72,8 @@ while ($ContinueSearching -eq $true) {
             $OutputHtml = Join-Path -Path $OutputPath -ChildPath "index.html"
             $OutputJson = Join-Path -Path $OutputPath -ChildPath "index.json"
             $Html = Get-Content -Path $InputHtml
-            # Remove everything except the contents of the <body> tag
-            $Html = [regex]::Match($Html, '(?is)<body[^>]*>(.*?)</body>').Groups[1].Value
+            # Clean up HTML with Tidy
+            $Html = $Html | tidy -q --show-body-only yes --wrap 0 --indent yes --show-warnings no 2>$null | Out-String
             # Move media files
             if ([System.Convert]::ToBoolean($parsemedia) -eq $true) {
                 # Detect embedded media in HTML files, move them to the post's folder, and update the path in the HTML
