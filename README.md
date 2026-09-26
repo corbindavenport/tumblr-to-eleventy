@@ -2,11 +2,11 @@
 
 A PowerShell script for migrating Tumblr blog posts to an [Eleventy website](https://www.11ty.dev/), while retaining their original permalinks, titles, tags, and other metadata. The output format for posts is HTML, not Markdown, using Tumblr's own HTML export cleaned up with [HTML Tidy](https://www.html-tidy.org/).
 
-**Note:** This was only tested with my personal blog and its 80 posts, running on macOS.
+This has not been extensively tested with non-macOS platforms and different types of posts. Check the [issues list](https://github.com/corbindavenport/tumblr-to-eleventy/issues) for known limitations.
 
 ## How to use the script
 
-You need [PowerShell 7 or later](https://learn.microsoft.com/en-us/powershell/scripting/install/install-powershell) and [HTML Tidy](https://www.html-tidy.org/). On a Mac, you can install them with [Homebrew](https://formulae.brew.sh/) like this:
+You need [PowerShell 7 or later](https://learn.microsoft.com/en-us/powershell/scripting/install/install-powershell) and [HTML Tidy](https://www.html-tidy.org/) installed. On a Mac, you can install them with [Homebrew](https://formulae.brew.sh/) like this:
 
 ```shell
 brew install powershell tidy-html5
